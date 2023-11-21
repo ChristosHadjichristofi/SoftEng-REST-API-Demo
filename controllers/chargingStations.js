@@ -103,3 +103,46 @@ exports.getDataByStationName = async (req, res, next) => {
         });
     });
 }
+
+exports.postStation = async (req, res, next) => {
+    const municipality = req.body.municipality;
+    const name = req.body.name;
+    const address = req.body.address;
+    const operation = req.body.operation;
+    const latitude = req.body.latitude;
+    const longitude = req.body.longitude;
+    const capacity = req.body.capacity;
+
+    if (!municipality || !name || !address || !operation || !latitude || !longitude || !capacity) return res.status(400).json({ message: 'Missing parameters' });
+
+    const query = 'INSERT INTO charging_stations (Municipality, Name, Address, Operation, Latitude, Longitude, Capacity) VALUES (?, ?, ?, ?, ?, ?, ?)';
+
+    pool.getConnection((err, connection) => {
+        connection.query(query, [municipality, name, address, operation, latitude, longitude, capacity], (err, rows) => {
+            connection.release();
+            if (err) {
+                console.log(err)
+                return res.status(500).json({ message: 'Internal server error' });
+            }
+
+            return res.status(201).json({ message: 'Station created', station: req.body });
+        });
+    });
+};
+
+exports.deleteStation = async (req, res, next) => {
+    const id = req.params.id;
+
+    if (!id) return res.status(400).json({ message: 'Missing parameters' });
+
+    const query = 'DELETE FROM charging_stations WHERE id = ?';
+
+    pool.getConnection((err, connection) => {
+        connection.query(query, [id], (err, rows) => {
+            connection.release();
+            if (err) return res.status(500).json({ message: 'Internal server error' });
+
+            return res.status(200).json({ message: `Station with ID = ${id} deleted successfully.` });
+        });
+    });
+};

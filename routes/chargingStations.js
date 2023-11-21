@@ -9,5 +9,7 @@ router.get('/municipalities', chargingStationsController.getMunicipalities);
 router.get('/municipalities/:name', chargingStationsController.getDataByMunicipalityName);
 router.get('/names', chargingStationsController.getNames);
 router.get('/names/:name', chargingStationsController.getDataByStationName);
+router.post('/', chargingStationsController.postStation);
+router.delete('/:id', chargingStationsController.deleteStation);
 
 module.exports = router;
