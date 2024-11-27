@@ -11,5 +11,6 @@ router.get('/names', chargingStationsController.getNames);
 router.get('/names/:name', chargingStationsController.getDataByStationName);
 router.post('/', chargingStationsController.postStation);
 router.delete('/:id', chargingStationsController.deleteStation);
+router.get('/nearby', chargingStationsController.getNearby);
 
 module.exports = router;

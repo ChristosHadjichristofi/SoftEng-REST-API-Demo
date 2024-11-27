@@ -18,12 +18,10 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:3000/api/chargingStations",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/chargingStations",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "3000",
 					"path": [
 						"api",
 						"chargingStations"
@@ -125,7 +123,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"municipality\": \"Paphos\",\n    \"name\": \"Paphos center\",\n    \"address\": \"42 Some random Address, Paphos\",\n    \"operation\": \"24h\",\n    \"latitude\": \"42.123456\",\n    \"longitude\": \"40.123456\",\n    \"capacity\": 99\n}",
+					"raw": "{\n    \"municipality\": \"Paphos\",\n    \"name\": \"Center Paphos 1\",\n    \"address\": \"43 Some random Address, Paphos\",\n    \"operation\": \"24h\",\n    \"latitude\": \"42.124456\",\n    \"longitude\": \"40.153456\",\n    \"capacity\": 1000\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -153,7 +151,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api/chargingStations/21",
+					"raw": "http://localhost:3000/api/chargingStations/22",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -162,11 +160,75 @@
 					"path": [
 						"api",
 						"chargingStations",
-						"21"
+						"22"
 					]
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "get nearest stations",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/chargingStations/nearby?latitude=35.016&longitude=34.049&radius=10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"chargingStations",
+						"nearby"
+					],
+					"query": [
+						{
+							"key": "latitude",
+							"value": "35.016"
+						},
+						{
+							"key": "longitude",
+							"value": "34.049"
+						},
+						{
+							"key": "radius",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
 		}
 	]
 }

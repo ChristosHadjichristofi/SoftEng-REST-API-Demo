@@ -1,4 +1,5 @@
 const { pool } = require('../utils/database');
+const { validateFields } = require('../utils/missingParams')
 
 exports.getAll = async (req, res, next) => {
     let limit = undefined;
@@ -113,11 +114,23 @@ exports.postStation = async (req, res, next) => {
     const longitude = req.body.longitude;
     const capacity = req.body.capacity;
 
-    if (!municipality || !name || !address || !operation || !latitude || !longitude || !capacity) return res.status(400).json({ message: 'Missing parameters' });
+    const requiredFields = ['municipality', 'name', 'address', 'operation', 'latitude', 'longitude', 'capacity'];
+    const missingFields = validateFields(req, "body", requiredFields);
 
+    if (missingFields.length > 0) return res.status(400).json({ message: `Missing body parameters: ${missingFields.join(', ')}` });
+
+    const checkQuery = 'SELECT * FROM charging_stations WHERE Name = ?';
     const query = 'INSERT INTO charging_stations (Municipality, Name, Address, Operation, Latitude, Longitude, Capacity) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
     pool.getConnection((err, connection) => {
+        connection.query(checkQuery, [name], (err, rows) => {
+            connection.release();
+            if (rows.length > 0) {
+                connection.release();
+                return res.status(409).json({ message: 'Station already exists' });
+            }
+        });
+
         connection.query(query, [municipality, name, address, operation, latitude, longitude, capacity], (err, rows) => {
             connection.release();
             if (err) {
@@ -143,6 +156,28 @@ exports.deleteStation = async (req, res, next) => {
             if (err) return res.status(500).json({ message: 'Internal server error' });
 
             return res.status(200).json({ message: `Station with ID = ${id} deleted successfully.` });
+        });
+    });
+};
+
+exports.getNearby = async (req, res, next) => {
+    const lat = req.query.latitude;
+    const long = req.query.longitude;
+    const radius = req.query.radius;
+
+    const requiredParams = ['latitude', 'longitude', 'radius'];
+    const missingParams = validateFields(req, 'query', requiredParams);
+
+    if (missingParams.length > 0) return res.status(400).json({ message: `Missing query parameters: ${missingParams.join(', ')}` });
+
+    const query = 'SELECT * FROM charging_stations WHERE (6371 * acos(cos(radians(?)) * cos(radians(Latitude)) * cos(radians(Longitude) - radians(?)) + sin(radians(?)) * sin(radians(Latitude))) <= ?)';
+
+    pool.getConnection((err, connection) => {
+        connection.query(query, [lat, long, lat, radius], (err, rows) => {
+            connection.release();
+            if (err) return res.status(500).json({ message: 'Internal server error' });
+
+            return res.status(200).json(rows);
         });
     });
 };
